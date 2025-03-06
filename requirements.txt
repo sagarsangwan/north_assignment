@@ -2,3 +2,6 @@ django-allauth
 dj-rest-auth
  google-auth
   requests
+  python-dotenv
+
+
