@@ -25,7 +25,7 @@
 
     <script>
       const websocketUrl = "{{ websocket_url }}";
-      const socket = new WebSocketwebsocketUrl();
+      const socket = new WebSocket(websocketUrl);
 
       socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
