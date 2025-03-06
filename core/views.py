@@ -3,25 +3,30 @@ from django.http import JsonResponse
 from urllib.parse import urlencode
 import requests
 from google_auth_oauthlib.flow import Flow
+from googleapiclient.discovery import build
+from django.views.decorators.csrf import csrf_exempt
+
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
+GOOGLE_REDIRECT_URI = os.environ.get("GOOGLE_REDIRECT_URI")
+SCOPES = ["openid", "email", "profile", "https://www.googleapis.com/auth/drive"]
 
 
 def google_login(request):
     google_auth_url = "https://accounts.google.com/o/oauth2/auth"
     params = {
-        "client_id": os.environ.get("GOOGLE_CLIENT_ID"),
-        "redirect_uri": os.environ.get("GOOGLE_REDIRECT_URI"),
+        "client_id": GOOGLE_CLIENT_ID,
+        "redirect_uri": GOOGLE_REDIRECT_URI,
         "response_type": "code",
-        "scope": "openid email profile",
+        "scope": "openid email profile https://www.googleapis.com/auth/drive",
         "access_type": "offline",
     }
-    print(os.environ.get("GOOGLE_REDIRECT_URI"))
     auth_url = f"{google_auth_url}?{urlencode(params)}"
     return JsonResponse({"auth_url": auth_url})
 
 
 def google_callback(request):
     code = request.GET.get("code")
-    print(code)
     if not code:
         return JsonResponse({"error": "no code provided"}, status=400)
     token_url = "https://oauth2.googleapis.com/token"
@@ -34,7 +39,6 @@ def google_callback(request):
     }
     token_response = requests.post(token_url, data=token_data)
     token_json = token_response.json()
-    print(token_json)
     if "access_token" not in token_json:
         return JsonResponse({"error": "failed to get access token"})
     access_token = token_json["access_token"]
@@ -44,89 +48,54 @@ def google_callback(request):
     )
     user_info = user_info_response.json()
     user_info["access_token"] = access_token
-    return JsonResponse(user_info)
+    print(access_token)
+    request.session["google_access_token"] = access_token
+    response = JsonResponse(user_info)
+    response.set_cookie("google_access_token", access_token)
+    return response
 
 
-SCOPES = [
-    "https://www.googleapis.com/auth/drive.file",
-    "https://www.googleapis.com/auth/drive.readonly",
-]
-# Store tokens temporarily
-CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-REDIRECT_URI = "http://127.0.0.1:8000/api/drive/callback/"
-
-TOKEN_STORAGE = {}
-
-
-def google_drive_auth(request):
-    flow = Flow.from_client_config(
-        {
-            "web": {
-                "client_id": CLIENT_ID,
-                "client_secret": CLIENT_SECRET,
-                "redirect_uris": [REDIRECT_URI],
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-            }
-        },
-        scopes=SCOPES,
-    )
-    flow.redirect_uri = REDIRECT_URI
-    auth_url, _ = flow.authorization_url(prompt="consent", access_type="offline")
-
-    return JsonResponse({"auth_url": auth_url})
-
-
-def google_drive_callback(request):
-    code = request.GET.get("code")
-    print(code)
-    if not code:
-        return JsonResponse({"error": "code not provided"})
-    flow = Flow.from_client_config(
-        {
-            "web": {
-                "client_id": CLIENT_ID,
-                "client_secret": CLIENT_SECRET,
-                "redirect_uris": [REDIRECT_URI],
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-            }
-        },
-        scopes=SCOPES,
-    )
-    flow.redirect_uri = REDIRECT_URI
-    flow.fetch_token(code=code)
-    credentials = flow.credentials
-    TOKEN_STORAGE["access_token"] = credentials.token
-    return JsonResponse(
-        {"message": "Drive connected successfully!", "access_token": credentials.token}
-    )
-
-
-def upload_file_to_drive(request):
-    access_token = TOKEN_STORAGE.get("access_token")
+@csrf_exempt
+def google_drive_upload(request):
+    access_token = request.COOKIES.get("google_access_token")
+    print(request.COOKIES)
+    # access_token = request.session.get("google_access_token")
+    print(access_token)
+    # refresh_token = request.session.get("google_refresh_token")
 
     if not access_token:
-        return JsonResponse({"error": "User not authenticated"}, status=401)
+        return JsonResponse(
+            {"error": "Please connect to Google Drive first."}, status=400
+        )
 
-    file = request.FILES.get("file")
-
-    if not file:
-        return JsonResponse({"error": "No file uploaded"}, status=400)
-
-    headers = {"Authorization": f"Bearer {access_token}"}
-    metadata = {"name": file.name}
-
-    files = {
-        "data": ("metadata", json.dumps(metadata), "application/json"),
-        "file": file,
-    }
-
-    response = requests.post(
-        "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
-        headers=headers,
-        files=files,
-    )
-
-    return JsonResponse(response.json())
+    if request.method == "POST" and request.FILES["file"]:
+        try:
+            service = build(
+                "drive",
+                "v3",
+                credentials=None,
+                developerKey=None,
+                http=None,
+                static_discovery=False,
+            )
+            service._http.request = (
+                requests.Session().request
+            )  # fix for google api client
+            service.credentials = type(
+                "credentials",
+                (),
+                {"token": access_token},
+            )  # create mock credentials
+            file = request.FILES["file"]
+            file_metadata = {"name": file.name}
+            media = (
+                service.files()
+                .create(body=file_metadata, media_body=file.read(), fields="id")
+                .execute()
+            )
+            return JsonResponse(
+                {"message": f"File uploaded successfully! File ID: {media.get('id')}"}
+            )
+        except Exception as e:
+            return JsonResponse({"error": f"Upload failed: {e}"}, status=500)
+    return JsonResponse({"error": "No file provided."}, status=400)

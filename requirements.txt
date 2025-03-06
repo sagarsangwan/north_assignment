@@ -1,13 +1,9 @@
-django-allauth 
-dj-rest-auth
- google-auth
-  requests
+django
+requests
+ google-api-python-client
+  google-auth-httplib2
+   google-auth-oauthlib 
   python-dotenv
-
- google-auth
-  google-auth-oauthlib
-   google-auth-httplib2
-    google-auth-oauthlib
     channels
     daphne
 
