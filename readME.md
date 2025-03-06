@@ -1,25 +1,25 @@
 # Django API & WebSocket Chat Application
 
-## 🚀 Overview
+##  Overview
 This Django-based project provides:
 - **Google OAuth 2.0 Authentication** for user login.
 - **Google Picker API Integration** for Google Drive file uploads and retrieval.
 - **WebSocket-based Real-Time Chat** for instant messaging between users.
 
-## 🛠️ Setup Instructions
+##  Setup Instructions
 
-### 1️⃣ Clone the Repository
+### 1️ Clone the Repository
 ```sh
 git clone https://github.com/yourusername/django-chat-app.git
 cd django-chat-app
 ```
 
-### 2️⃣ Install Dependencies
+### 2️  Install Dependencies
 ```sh
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Set Up Environment Variables
+### 3️ Set Up Environment Variables
 Create a `.env` file in the root directory and add the following:
 ```env
 SECRET_KEY=your_secret_key
@@ -29,18 +29,18 @@ GOOGLE_REDIRECT_URI=http://127.0.0.1:8000/auth/callback/
 ALLOWED_HOSTS=127.0.0.1,localhost
 ```
 
-### 4️⃣ Apply Migrations
+### 4 Apply Migrations
 ```sh
 python manage.py migrate
 ```
 
-### 5️⃣ Run the Server
+### 5️ Run the Server
 ```sh
 python manage.py runserver
 ```
 ---
 
-## 🔐 Google OAuth 2.0 Authentication
+## Google OAuth 2.0 Authentication
 
 ### **Initiate Google Auth Flow**
 - **Endpoint:** `GET /auth/login/`
@@ -67,11 +67,11 @@ Example Response:
 
 ---
 
-## 📂 Google Drive Integration (Google Picker API)
+## Google Drive Integration (Google Picker API)
 
 
 
-## 💬 WebSocket Chat
+##  WebSocket Chat
 
 ### **Connecting to WebSocket**
 - **WebSocket URL:** `ws://127.0.0.1:8000/ws/chat/`
@@ -116,33 +116,26 @@ When a message is received from another user, the server sends:
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
-### **1️⃣ Install Daphne for ASGI Server**
+### **1️ Install Daphne for ASGI Server**
 ```sh
 pip install daphne
 ```
 
-### **2️⃣ Run with ASGI**
+### **2️ Run with ASGI**
 ```sh
 daphne -b 127.0.0.1 -p 8000 myproject.asgi:application
 ```
 
-### **3️⃣ Deploy on Heroku / Railway / Render**
-- Add `Procfile` for Heroku:
-  ```
-  web: daphne -b 0.0.0.0 -p $PORT myproject.asgi:application
-  ```
-- Push to your repository and deploy.
 
 ---
 
-## 📩 API Documentation (Postman Collection)
+##  API Documentation (Postman Collection)
 Import the provided **Postman collection** (`postman_collection.json`) into Postman for testing all endpoints.
 
 ---
 
-## 🔥 Contributors
 - **Sagar Sangwan** - [GitHub](https://github.com/sagarsangwan)
 
 **i have hosted it here you can check basic features like (chat app )( https://north-assignment-2.onrender.com/)**

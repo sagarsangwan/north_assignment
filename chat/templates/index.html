@@ -20,12 +20,13 @@
       id="message"
       placeholder="Type a message"
     />
-    <button onclick="sendMessage()">Send</button>
+    <button id="sendButton">Send</button>
     <ul id="messages"></ul>
 
     <script>
       const websocketUrl = "{{ websocket_url }}";
       const socket = new WebSocket(websocketUrl);
+      const sendButton = document.getElementById("sendButton");
 
       socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
@@ -40,17 +41,7 @@
         const message = document.getElementById("message").value;
         socket.send(JSON.stringify({ username: username, message: message }));
       }
-      socket.onopen = function (event) {
-        console.log("Connected to WebSocket");
-      };
-
-      socket.onmessage = function (event) {
-        console.log("Message from Server:", event.data);
-      };
-
-      socket.onclose = function (event) {
-        console.log("WebSocket Disconnected");
-      };
+      sendButton.addEventListener("click", sendMessage);
     </script>
   </body>
 </html>
