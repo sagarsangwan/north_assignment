@@ -2,15 +2,15 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Real-Time Chat</title>
 </head>
 
 <body>
     <h1>WebSocket Chat</h1>
-    <input type="text" id="username" value="nameee" placeholder="Enter your name">
-    <input type="text" value="message" id="message" placeholder="Type a message">
+    <input type="text" id="username" value="nameee" placeholder="Enter your name" />
+    <input type="text" value="message" id="message" placeholder="Type a message" />
     <button onclick="sendMessage()">Send</button>
     <ul id="messages"></ul>
 
@@ -28,8 +28,20 @@
         function sendMessage() {
             const username = document.getElementById("username").value;
             const message = document.getElementById("message").value;
-            socket.send(JSON.stringify({ "username": username, "message": message }));
+            socket.send(JSON.stringify({ username: username, message: message }));
         }
+        socket.onopen = function (event) {
+            console.log("Connected to WebSocket");
+
+        };
+
+        socket.onmessage = function (event) {
+            console.log("Message from Server:", event.data);
+        };
+
+        socket.onclose = function (event) {
+            console.log("WebSocket Disconnected");
+        };
     </script>
 </body>
 
