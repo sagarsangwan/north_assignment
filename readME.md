@@ -69,46 +69,7 @@ Example Response:
 
 ## 📂 Google Drive Integration (Google Picker API)
 
-### **Connect Google Drive**
-- **Endpoint:** `GET /drive/connect/`
-- **Description:** Redirects user to authorize Google Drive access.
 
-```sh
-curl -X GET http://127.0.0.1:8000/drive/connect/
-```
-
-### **Upload File to Google Drive**
-- **Endpoint:** `POST /drive/upload/`
-- **Description:** Uploads a file to Google Drive.
-- **Request Format:** Multipart Form Data
-
-```sh
-curl -X POST http://127.0.0.1:8000/drive/upload/ \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-  -F "file=@path/to/your/file.txt"
-```
-
-### **Fetch Files from Google Drive**
-- **Endpoint:** `GET /drive/files/`
-- **Description:** Lists all files in the user's Google Drive.
-
-```sh
-curl -X GET http://127.0.0.1:8000/drive/files/ \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-```
-
-Example Response:
-```json
-[
-  {
-    "id": "1x2abc345",
-    "name": "document.pdf",
-    "link": "https://drive.google.com/file/d/1x2abc345/view"
-  }
-]
-```
-
----
 
 ## 💬 WebSocket Chat
 
@@ -184,5 +145,5 @@ Import the provided **Postman collection** (`postman_collection.json`) into Post
 ## 🔥 Contributors
 - **Sagar Sangwan** - [GitHub](https://github.com/sagarsangwan)
 
-Feel free to contribute! 🎉
+**i have hosted it here you can check basic features like (chat app )( https://north-assignment-2.onrender.com/)**
 
