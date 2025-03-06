@@ -28,13 +28,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
-    # "allauth",
-    # "allauth.account",
-    # "allauth.socialaccount",
-    # "allauth.socialaccount.providers.google",
     "rest_framework",
-    # "dj_rest_auth",
+    "channels",
     "core",
+    "chat",
 ]
 
 MIDDLEWARE = [
@@ -65,7 +62,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "north_assignment.wsgi.application"
+ASGI_APPLICATION = "north_assignment.asgi.application"
 
 
 # Database
@@ -119,3 +116,9 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
